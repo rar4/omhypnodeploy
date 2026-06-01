@@ -39,7 +39,7 @@ export function Footer() {
         }}
       >
         {[
-          { href: '/home', label: 'Home' },
+          { href: '/', label: 'Home' },
           { href: '/about', label: 'O mnie' },
           { href: '/contact', label: 'Kontakt' },
         ].map(({ href, label }) => (
