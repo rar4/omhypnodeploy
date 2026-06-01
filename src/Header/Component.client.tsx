@@ -60,7 +60,6 @@ export const HeaderClient: React.FC = () => {
           { href: '/home', label: 'Home' },
           { href: '/about', label: 'O Mnie' },
           { href: '/#process', label: 'Jak to działa' },
-          { href: '/contact', label: 'Kontakt' },
         ].map(({ href, label }) => (
           <li key={href}>
             <Link
