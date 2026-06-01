@@ -57,7 +57,7 @@ export const HeaderClient: React.FC = () => {
         className="nav-links-desktop"
       >
         {[
-          { href: '/home', label: 'Home' },
+          { href: '/', label: 'Home' },
           { href: '/about', label: 'O Mnie' },
           { href: '/#process', label: 'Jak to działa' },
         ].map(({ href, label }) => (
