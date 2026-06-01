@@ -1,0 +1,151 @@
+import type { CollectionConfig } from 'payload'
+
+import { authenticated } from '../../access/authenticated'
+import { authenticatedOrPublished } from '../../access/authenticatedOrPublished'
+import { HeroBlock } from '../../blocks/HeroBlock/config'
+import { IntroSection } from '../../blocks/IntroSection/config'
+import { ServicesSection } from '../../blocks/ServicesSection/config'
+import { ProcessSection } from '../../blocks/ProcessSection/config'
+import { TestimonialBlock } from '../../blocks/TestimonialBlock/config'
+import { CTABand } from '../../blocks/CTABand/config'
+import { PageHeader } from '../../blocks/PageHeader/config'
+import { StorySection } from '../../blocks/StorySection/config'
+import { CredentialsSection } from '../../blocks/CredentialsSection/config'
+import { ValuesSection } from '../../blocks/ValuesSection/config'
+import { ContactBlock } from '../../blocks/ContactBlock/config'
+import { FAQBlock } from '../../blocks/FAQBlock/config'
+import { ReviewsBlock } from '../../blocks/ReviewsBlock/config'
+import { hero } from '@/heros/config'
+import { slugField } from 'payload'
+import { populatePublishedAt } from '../../hooks/populatePublishedAt'
+import { generatePreviewPath } from '../../utilities/generatePreviewPath'
+import { revalidateDelete, revalidatePage } from './hooks/revalidatePage'
+
+import {
+  MetaDescriptionField,
+  MetaImageField,
+  MetaTitleField,
+  OverviewField,
+  PreviewField,
+} from '@payloadcms/plugin-seo/fields'
+
+export const Pages: CollectionConfig<'pages'> = {
+  slug: 'pages',
+  access: {
+    create: authenticated,
+    delete: authenticated,
+    read: authenticatedOrPublished,
+    update: authenticated,
+  },
+  defaultPopulate: {
+    title: true,
+    slug: true,
+  },
+  admin: {
+    defaultColumns: ['title', 'slug', 'updatedAt'],
+    livePreview: {
+      url: ({ data, req }) =>
+        generatePreviewPath({
+          slug: data?.slug,
+          collection: 'pages',
+          req,
+        }),
+    },
+    preview: (data, { req }) =>
+      generatePreviewPath({
+        slug: data?.slug as string,
+        collection: 'pages',
+        req,
+      }),
+    useAsTitle: 'title',
+  },
+  fields: [
+    {
+      name: 'title',
+      type: 'text',
+      required: true,
+    },
+    {
+      type: 'tabs',
+      tabs: [
+        {
+          fields: [hero],
+          label: 'Hero',
+        },
+        {
+          fields: [
+            {
+              name: 'layout',
+              type: 'blocks',
+              blocks: [
+                HeroBlock,
+                IntroSection,
+                ServicesSection,
+                ProcessSection,
+                TestimonialBlock,
+                CTABand,
+                PageHeader,
+                StorySection,
+                CredentialsSection,
+                ValuesSection,
+                ContactBlock,
+                FAQBlock,
+                ReviewsBlock,
+              ],
+              required: true,
+              admin: {
+                initCollapsed: true,
+              },
+            },
+          ],
+          label: 'Content',
+        },
+        {
+          name: 'meta',
+          label: 'SEO',
+          fields: [
+            OverviewField({
+              titlePath: 'meta.title',
+              descriptionPath: 'meta.description',
+              imagePath: 'meta.image',
+            }),
+            MetaTitleField({
+              hasGenerateFn: true,
+            }),
+            MetaImageField({
+              relationTo: 'media',
+            }),
+            MetaDescriptionField({}),
+            PreviewField({
+              hasGenerateFn: true,
+              titlePath: 'meta.title',
+              descriptionPath: 'meta.description',
+            }),
+          ],
+        },
+      ],
+    },
+    {
+      name: 'publishedAt',
+      type: 'date',
+      admin: {
+        position: 'sidebar',
+      },
+    },
+    slugField(),
+  ],
+  hooks: {
+    afterChange: [revalidatePage],
+    beforeChange: [populatePublishedAt],
+    afterDelete: [revalidateDelete],
+  },
+  versions: {
+    drafts: {
+      autosave: {
+        interval: 100,
+      },
+      schedulePublish: true,
+    },
+    maxPerDoc: 50,
+  },
+}
